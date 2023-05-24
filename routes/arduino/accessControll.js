@@ -1,8 +1,7 @@
 import pkg from 'johnny-five'
-import SerialPort from 'serialport'
 const { Board, Ultrasonic, Servo } = pkg
 
-const board = new Board({ port: '/dev/ttyACM0' }) // Reemplaza '/dev/ttyACM0' con el puerto correcto para tu Arduino
+const board = new Board({ port: 'COM5' }) // Reemplaza '/dev/ttyACM0' con el puerto correcto para tu Arduino
 
 board.on('ready', () => {
   const ultrasonic = new Ultrasonic({
@@ -32,18 +31,4 @@ board.on('ready', () => {
       }
     })
   }, 1000)
-})
-
-// Código para establecer la comunicación serie
-const port = new SerialPort('/dev/ttyACM0', { // Reemplaza '/dev/ttyACM0' con el puerto correcto para tu Arduino
-  baudRate: 9600
-})
-
-port.on('open', () => {
-  console.log('Conexión serie establecida')
-
-  port.on('data', (data) => {
-    console.log('Datos recibidos:', data.toString())
-    // Haz algo con los datos recibidos
-  })
 })
