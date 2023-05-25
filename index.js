@@ -4,7 +4,7 @@ import routes from './routes/routes.js'
 import { Server } from 'socket.io'
 import pkg from 'johnny-five'
 
-const { Board, Proximity } = pkg
+const { Board, Proximity, Led } = pkg
 const app = express()
 const server = createServer(app)
 const io = new Server(server, {
@@ -13,7 +13,7 @@ const io = new Server(server, {
   }
 })
 
-const board = new Board({ port: 'COM5' })
+const board = new Board({ port: 'COM6' })
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -30,10 +30,18 @@ io.on('connection', (socket) => {
       controller: 'HCSR04',
       pin: 7
     })
+    const led = new Led(11)
 
     sensorUltrasonic.on('change', () => {
       const { centimeters, inches } = sensorUltrasonic
       socket.emit('event', centimeters)
+    })
+    app.get('/api/openPluma', (req, res) => {
+      led.fadeIn()
+      board.wait(5000, () => {
+        led.fadeOut()
+        res.send('Terminado')
+      })
     })
   })
 
@@ -45,8 +53,6 @@ io.on('connection', (socket) => {
     console.log('Client has disconnected')
   })
 })
-
-app.use('/api', routes)
 
 server.listen(9000, () => {
   console.log('Server is running on port 9000')
