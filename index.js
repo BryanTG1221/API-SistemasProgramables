@@ -1,10 +1,9 @@
 import express from 'express'
 import { createServer } from 'http'
-import routes from './routes/routes.js'
 import { Server } from 'socket.io'
 import pkg from 'johnny-five'
 
-const { Board, Proximity, Led } = pkg
+const { Board, Proximity, Servo } = pkg
 const app = express()
 const server = createServer(app)
 const io = new Server(server, {
@@ -13,7 +12,7 @@ const io = new Server(server, {
   }
 })
 
-const board = new Board({ port: 'COM6' })
+const board = new Board({ port: 'COM5' })
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -30,17 +29,20 @@ io.on('connection', (socket) => {
       controller: 'HCSR04',
       pin: 7
     })
-    const led = new Led(11)
+    const pluma = new Servo({
+      pin: 10,
+      startAt: 0
+    })
 
     sensorUltrasonic.on('change', () => {
-      const { centimeters, inches } = sensorUltrasonic
+      const { centimeters } = sensorUltrasonic
       socket.emit('event', centimeters)
     })
     app.get('/api/openPluma', (req, res) => {
-      led.fadeIn()
-      board.wait(5000, () => {
-        led.fadeOut()
-        res.send('Terminado')
+      pluma.to(90)
+      board.wait(10000, () => {
+        pluma.to(0)
+        res.send('Accion Ejecutada')
       })
     })
   })

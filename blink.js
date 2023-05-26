@@ -1,10 +1,15 @@
 import pkg from 'johnny-five'
 
-const { Board, Led } = pkg
+const { Board, Servo } = pkg
 
 const board = new Board({ port: 'COM5' })
 
 board.on('ready', function () {
-  const led = new Led(13)
-  led.blink(500)
+  const pluma = new Servo({
+    pin: 10,
+    startAt: 0
+  })
+  board.wait(10000, () => {
+    pluma.to(90)
+  })
 })
