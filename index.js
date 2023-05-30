@@ -24,6 +24,7 @@ io.on('connection', (socket) => {
     myBoleean: true
   }
   socket.emit('event', data)
+  let CentimetrosPluma
 
   // Mover la inicialización del sensor dentro del evento 'ready' de la placa
   board.on('ready', function () {
@@ -38,13 +39,19 @@ io.on('connection', (socket) => {
 
     sensorUltrasonic.on('change', () => {
       const { centimeters } = sensorUltrasonic
+      CentimetrosPluma = centimeters
       socket.emit('event', centimeters)
     })
     app.get('/api/openPluma', (req, res) => {
       pluma.to(90, 3500)
       board.wait(10000, () => {
-        pluma.to(15, 3000)
-        res.send('Accion Ejecutada').status(200)
+        const intervaloBajarPlima = setInterval(() => {
+          if (CentimetrosPluma >= 15) {
+            pluma.to(15, 3000)
+            clearInterval(intervaloBajarPlima)
+            res.send('Accion Ejecutada').status(200)
+          }
+        }, 1000)
       })
     })
   })
