@@ -2,6 +2,7 @@ import express from 'express'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import pkg from 'johnny-five'
+import cors from 'cors'
 
 const { Board, Proximity, Servo } = pkg
 const app = express()
@@ -16,6 +17,7 @@ const board = new Board({ port: 'COM5' })
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(cors())
 
 io.on('connection', (socket) => {
   const data = {
@@ -31,7 +33,7 @@ io.on('connection', (socket) => {
     })
     const pluma = new Servo({
       pin: 10,
-      startAt: 0
+      startAt: 15
     })
 
     sensorUltrasonic.on('change', () => {
@@ -39,10 +41,10 @@ io.on('connection', (socket) => {
       socket.emit('event', centimeters)
     })
     app.get('/api/openPluma', (req, res) => {
-      pluma.to(90)
+      pluma.to(90, 3500)
       board.wait(10000, () => {
-        pluma.to(0)
-        res.send('Accion Ejecutada')
+        pluma.to(15, 3000)
+        res.send('Accion Ejecutada').status(200)
       })
     })
   })
